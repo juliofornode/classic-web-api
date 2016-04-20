@@ -23,14 +23,15 @@ var app = express();
 
 
 //4. app.set (configuration)
-
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
 
 //5. app.use (middleware)
 
 
 //6. routes
 app.get('/', function(req, res) {
-    res.send('this is the home page');
+    res.render('index');
 });
 
 
@@ -66,6 +67,7 @@ app.all('*', function(req, res) {
 });
 
 
-
-
 //7. app server start in host and port
+app.listen(3000, function() {
+    console.log('the server is listening on port 3000');
+});

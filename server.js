@@ -39,7 +39,7 @@ app.get('/items', function(req, res, next) {
     Item.find()
         .exec(function(error, result) {
             if (error) return next(error);
-            res.json(result);
+            res.render('items', result);
         });
 });
 

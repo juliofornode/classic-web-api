@@ -1,0 +1,19 @@
+extends layout
+
+block content
+    h2 Items
+    table(border='1')
+        tr
+            th Name
+            if(items)
+                each item in items
+                    tr
+                        td #{item.name}
+
+    form(method='post')
+        p
+            label(for="name") Name:
+            input(type='text', name='name', value=item.name)
+
+        p
+            input(type='submit', value='save')

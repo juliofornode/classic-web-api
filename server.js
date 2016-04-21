@@ -11,8 +11,7 @@ var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/restApi041916');
 
 var itemSchema = mongoose.Schema({
-    name: String,
-    lastName: String
+    name: String
 });
 
 var Item = mongoose.model('Item', itemSchema);
@@ -39,12 +38,17 @@ app.get('/items', function(req, res, next) {
     Item.find()
         .exec(function(error, result) {
             if (error) return next(error);
-            res.render('items', result);
-        });
+            res.render('items', {locals: {
+                items: result
+            }});
 });
 
 app.post('/items', function(req, res) {
-
+    var item = new Item({name: req.body.name});
+    item.save(function(error, result) {
+        if (error) return next(error);
+        return res.redirect('/');
+    });
 });
 
 app.get('/items/:item_id', function(req, res) {

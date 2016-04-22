@@ -39,6 +39,7 @@ app.get('/', function(req, res) {
 });
 
 
+//read all
 app.get('/items', function(req, res, next) {
     Item.find(function (error, result) {
             if (error) return next(error);
@@ -46,10 +47,14 @@ app.get('/items', function(req, res, next) {
         });
 });
 
+
+//get create page
 app.get('/new-item', function(req, res) {
     return res.render('show_edit', {title: 'New Item', item:{}});
 });
 
+
+//create
 app.post('/new-item', function(req, res, next) {
     var item = new Item({name: req.body.name});
     item.save(function(error, result) {
@@ -59,7 +64,9 @@ app.post('/new-item', function(req, res, next) {
     });
 });
 
-app.get('/items/:id', function(req, res) {
+
+//read one
+app.get('/item/:id', function(req, res) {
     var id = req.params.id;
     Item.findById(id, function(err, item){
         if (err)
@@ -68,7 +75,9 @@ app.get('/items/:id', function(req, res) {
     });
 });
 
-app.post('/items/:id', function(req, res, next) {
+
+//update one
+app.post('/item/:id', function(req, res, next) {
     var id = req.params.id;
     Item.findById(id, function(err, item){
         item.name = req.body.name;
@@ -80,6 +89,24 @@ app.post('/items/:id', function(req, res, next) {
     });
 });
 
+
+//delete one
+app.get('/delete-item/:id', function(req, res, next){
+    var id = req.params.id;
+
+    Item.findById(id, function(err, item){
+        if (err)
+            console.log(err);
+        if (!item)
+            return res.send("Invalid ID");
+
+        item.remove(function(err){
+            if (err)
+                console.log(err);
+            return res.redirect("/items");
+        });
+    });
+});
 
 
 ////catch-all route

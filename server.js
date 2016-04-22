@@ -1,6 +1,7 @@
 //1. dependencies
 var express = require('express');
 var bodyParser = require('body-parser');
+var logger = require('morgan');
 
 
 ////custom modules
@@ -8,13 +9,13 @@ var bodyParser = require('body-parser');
 
 //2. db connection
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/restApi041916');
+var db = mongoose.connect('mongodb://localhost/items041916');
 
-var itemSchema = mongoose.Schema({
+var itemSchema = db.Schema({
     name: String
 });
 
-var Item = mongoose.model('Item', itemSchema);
+var Item = db.model('Item', itemSchema);
 
 
 //3. app instantiation
@@ -25,42 +26,58 @@ var app = express();
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
+
 //5. app.use (middleware)
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
+app.use(logger('dev'));
 
 
 //6. routes
 app.get('/', function(req, res) {
-    res.render('index');
+    res.redirect('items');
 });
 
 
 app.get('/items', function(req, res, next) {
-    Item.find()
-        .exec(function(error, result) {
+    Item.find(function (error, result) {
             if (error) return next(error);
-            res.render('items', {locals: {
-                items: result
-            }});
+            res.render('items', {items: result});
+        });
 });
 
-app.post('/items', function(req, res) {
+app.get('/new-item', function(req, res) {
+    return res.render('show_edit', {title: 'New Item', item:{}});
+});
+
+app.post('/new-item', function(req, res, next) {
     var item = new Item({name: req.body.name});
     item.save(function(error, result) {
         if (error) return next(error);
-        return res.redirect('/');
+        console.log('Saving: ' + result);
+        return res.redirect('/items');
     });
 });
 
-app.get('/items/:item_id', function(req, res) {
-
+app.get('/items/:id', function(req, res) {
+    var id = req.params.id;
+    Item.findById(id, function(err, item){
+        if (err)
+            console.log(err);
+        return res.render('show_edit', {title: 'Show Item', item: item});
+    });
 });
 
-app.put('/items/:item_id', function(req, res) {
-
-});
-
-app.delete('/items/:item_id', function(req, res) {
-
+app.post('/items/:id', function(req, res, next) {
+    var id = req.params.id;
+    Item.findById(id, function(err, item){
+        item.name = req.body.name;
+        item.save(function(error, result) {
+            if (error) return next(error);
+            console.log('Updating: ' + result);
+            return res.redirect('/items');
+        });
+    });
 });
 
 
